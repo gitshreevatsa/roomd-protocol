@@ -1,0 +1,12 @@
+{
+  "name": "room-protocol-paper",
+  "private": true,
+  "description": "Build HTML/PDF for the Room Protocol whitepaper",
+  "dependencies": {
+    "marked": "^4.3.0"
+  },
+  "scripts": {
+    "build": "node build-paper.cjs",
+    "build:pdf": "node build-paper.cjs --pdf"
+  }
+}
