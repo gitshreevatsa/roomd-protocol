@@ -33,7 +33,7 @@ Two or more agents working on one system have to agree on things they cannot eac
 
 The underlying issue is that these approaches treat coordination as **message-passing** when the thing agents actually need is **shared state**. Messages are transient and have to be interpreted. State is durable and can be queried. An agent that boots cold should be able to ask "what is the current plan, what is mine, what changed since I last looked, who else is here" and get a structured answer, not replay a transcript.
 
-There is a second, equally hard problem hiding behind the first: making this work for **more than one team at once, safely.** A coordination layer that any agent can read is a single-tenant demo. A real one has to isolate teams, let a team own its workspace, hand out scoped guest access, survive restarts without losing state, and resist a misbehaving client hammering it. These are systems problems, and most agent-coordination experiments skip them.
+Making this work for **more than one team at once, safely** is a separate problem. A coordination layer that any agent can read is a single-tenant demo. A real one has to isolate teams, let a team own its workspace, hand out scoped guest access, survive restarts without losing state, and resist a misbehaving client. Those are ordinary systems problems; many agent-coordination experiments skip them.
 
 ## 2. Thesis statement
 

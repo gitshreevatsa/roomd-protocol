@@ -41,7 +41,7 @@ Today this agreement is usually reached in one of three ways, each with clear co
 2. **The agents talk in natural language.** One agent describes to another what it needs. Conversation is lossy and order-dependent. There is no durable record to query later, no receipt that a message was seen, and nothing stopping two agents from editing the same plan at once.
 3. **They share a filesystem or repository.** This carries code but not intent. A git history does not tell agent B that agent A is halfway through the auth service at this moment, or that a contract B depends on changed five minutes ago.
 
-The common thread is that all three treat coordination as *message-passing* when the thing agents actually need is *shared state*. Messages are transient and must be interpreted. State is durable and can be queried. An agent that starts cold should be able to ask "what is the current plan, what is mine, what changed since I last looked, and who else is here," and receive a structured answer rather than a transcript to replay.
+All three treat coordination as *message-passing* when agents need *shared state*. Messages are transient and must be interpreted. State is durable and can be queried. An agent that starts cold should be able to ask "what is the current plan, what is mine, what changed since I last looked, and who else is here," and get a structured answer rather than a transcript to replay.
 
 ```mermaid
 flowchart TB
@@ -57,7 +57,7 @@ flowchart TB
 
 **Figure 1.** Message-passing versus shared state. Agents do not address each other; they operate on one room.
 
-A second problem sits behind the first: doing this for more than one team at once, safely. A coordination layer any agent can read is a single-tenant demo. A usable system has to isolate teams, let a team own its workspace, grant scoped guest access, survive restarts without losing state, and resist a misbehaving client. Those are ordinary systems problems; many agent-coordination experiments skip them. This paper does not.
+Doing this for more than one team at once, safely, is a separate problem. A coordination layer any agent can read is a single-tenant demo. A usable system has to isolate teams, let a team own its workspace, grant scoped guest access, survive restarts without losing state, and resist a misbehaving client. Those are ordinary systems problems; this paper treats them as in-scope.
 
 ---
 
@@ -82,7 +82,7 @@ A second problem sits behind the first: doing this for more than one team at onc
 
 The Model Context Protocol (MCP) [1] is a standard by which an agent (the client) discovers and calls tools exposed by a server. A tool has a name, a description, and a typed input schema; the agent calls it with arguments and receives a result. MCP is normally used to give a single agent new capabilities, for example reading a database or calling an API.
 
-The Room Protocol uses MCP as its transport and tool-description layer, but inverts the usual purpose. The tools do not extend one agent's reach into the world. They are operations on a *shared* object that several agents call concurrently. MCP is a convenient substrate for this because any MCP-capable agent can participate with no bespoke client: it discovers the coordination tools the same way it would discover any others, from the server. The protocol's semantics live in what those tools do to shared state, not in the wire format. Operators authenticate each client with an HTTP bearer secret (Section 8); several agents may call the same tools concurrently, and correctness under that concurrency is part of the design (Section 7).
+The Room Protocol uses MCP as its transport and tool-description layer, but inverts the usual purpose. The tools do not extend one agent's reach into the world. They are operations on a *shared* object that several agents call concurrently. MCP fits because any MCP-capable agent can participate with no bespoke client: it discovers the coordination tools the same way it would discover any others, from the server. The protocol's semantics live in what those tools do to shared state, not in the wire format. Operators authenticate each client with an HTTP bearer secret (Section 8); several agents may call the same tools concurrently, and correctness under that concurrency is part of the design (Section 7).
 
 One implementation detail matters for the architecture. The reference server uses the modern streamable-HTTP transport in **stateless** mode (a fresh transport and server instance are created for every request) rather than the deprecated long-lived SSE transport. There is no per-connection session to keep alive. Every tool call is an independent HTTP request whose only durable effect is on the store. This choice runs through the rest of the design.
 
