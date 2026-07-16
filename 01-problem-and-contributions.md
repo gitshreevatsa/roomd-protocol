@@ -25,10 +25,10 @@ The Room Protocol: Shared-State Coordination for Multi-Agent Software Developmen
 
 LLM coding agents are good at working alone. A single agent can hold a task, read a codebase, edit files, and report back. The moment a second agent joins the same project, that strength stops being enough.
 
-Two or more agents working on one system have to agree on things they cannot each independently invent: the shape of an API one builds and the other consumes, which task each is doing, whether a piece of work is finished, and what was decided and why. Today this coordination happens in one of three unsatisfying ways.
+Two or more agents working on one system have to agree on things they cannot each invent alone: the shape of an API one builds and the other consumes, which task each is doing, whether work is finished, and what was decided. Today that usually happens in one of three ways.
 
-1. **A human relays it.** The operator copies an API contract from one agent's chat into another's. This does not scale past a toy and puts the human in the critical path of every handoff.
-2. **The agents talk in natural language.** One agent sends another a message describing what it needs. Conversation is lossy, unstructured, and order-dependent. There is no durable record an agent can query later, no way to know if a message was seen, and no way to stop two agents from editing the same plan at once.
+1. **A human relays it.** The operator copies an API contract from one agent's chat into another's. That puts a person on every handoff.
+2. **The agents talk in natural language.** One agent describes what it needs. Conversation is lossy and order-dependent. There is no durable record to query later, no receipt that a message was seen, and nothing stopping two agents from editing the same plan at once.
 3. **They share a filesystem or repo.** This works for code but not for intent. A git history does not tell agent B that agent A is mid-way through the auth service right now, or that a contract it depends on changed five minutes ago.
 
 The underlying issue is that these approaches treat coordination as **message-passing** when the thing agents actually need is **shared state**. Messages are transient and have to be interpreted. State is durable and can be queried. An agent that boots cold should be able to ask "what is the current plan, what is mine, what changed since I last looked, who else is here" and get a structured answer, not replay a transcript.
@@ -37,9 +37,9 @@ There is a second, equally hard problem hiding behind the first: making this wor
 
 ## 2. Thesis statement
 
-A small set of **structured, persistent, queryable state primitives** (a shared plan, a typed context store, an append-only event log, presence, and locks, plus a minor shared-variables map), exposed to agents through the Model Context Protocol and backed by a single key-value store, is a more reliable coordination mechanism for multi-agent software development than conversational message-passing. The same design that makes coordination reliable (statelessness, one store, explicit ownership) is what makes it multi-tenant and production-deployable without additional machinery.
+A small set of **structured, persistent, queryable state primitives** (plan, typed context, events, presence, locks, plus minor shared vars), exposed over MCP and backed by one key-value store, coordinates multi-agent software work more reliably than conversational message-passing. Statelessness, one store, and explicit ownership are also what make it multi-tenant without extra machinery.
 
-roomd is the system built to demonstrate this. It is a stateless MCP server backed entirely by Upstash Redis, exercised by Claude Code instances coordinating on real projects. It is packaged to deploy as a container on Railway with the dashboard on Vercel; the reference instance is run locally, and nothing in the design depends on a particular host.
+roomd is the reference implementation: a stateless MCP server on Upstash Redis, used with Claude Code on real projects. It deploys as a container (e.g. Railway) with the dashboard on Vercel; nothing in the design depends on a particular host.
 
 ## 3. Contributions
 

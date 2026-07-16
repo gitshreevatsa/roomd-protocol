@@ -35,10 +35,10 @@ The rule throughout: "the protocol" and "the Room Protocol" mean the design; "th
 
 A single coding agent holds a task, reads a codebase, edits files, and reports back. That model breaks the moment a second agent joins the same project. Two agents building one system must agree on things neither can independently invent: the shape of an interface that one produces and the other consumes, which task each is doing right now, whether a unit of work is finished, and what was decided and why.
 
-Today this agreement is reached in one of three unsatisfying ways.
+Today this agreement is usually reached in one of three ways, each with clear costs.
 
-1. **A human relays it.** The operator copies an API contract out of one agent's session and pastes it into another's. This puts a person in the critical path of every handoff and does not survive past a toy.
-2. **The agents talk in natural language.** One agent describes to another what it needs. Conversation is lossy, unstructured, and order-dependent. There is no durable record to query later, no signal that a message was received, and nothing preventing two agents from editing the same plan at the same instant.
+1. **A human relays it.** The operator copies an API contract out of one agent's session and pastes it into another's. That puts a person on every handoff.
+2. **The agents talk in natural language.** One agent describes to another what it needs. Conversation is lossy and order-dependent. There is no durable record to query later, no receipt that a message was seen, and nothing stopping two agents from editing the same plan at once.
 3. **They share a filesystem or repository.** This carries code but not intent. A git history does not tell agent B that agent A is halfway through the auth service at this moment, or that a contract B depends on changed five minutes ago.
 
 The common thread is that all three treat coordination as *message-passing* when the thing agents actually need is *shared state*. Messages are transient and must be interpreted. State is durable and can be queried. An agent that starts cold should be able to ask "what is the current plan, what is mine, what changed since I last looked, and who else is here," and receive a structured answer rather than a transcript to replay.
@@ -57,7 +57,7 @@ flowchart TB
 
 **Figure 1.** Message-passing versus shared state. Agents do not address each other; they operate on one room.
 
-A second problem hides behind the first: doing this for more than one team at once, safely. A coordination layer any agent can read is a single-tenant demonstration. A usable one must isolate teams, let a team own its workspace, grant scoped guest access, survive restarts without losing state, and resist a misbehaving client. These are systems problems, and most agent-coordination experiments set them aside. This work does not.
+A second problem sits behind the first: doing this for more than one team at once, safely. A coordination layer any agent can read is a single-tenant demo. A usable system has to isolate teams, let a team own its workspace, grant scoped guest access, survive restarts without losing state, and resist a misbehaving client. Those are ordinary systems problems; many agent-coordination experiments skip them. This paper does not.
 
 ---
 
@@ -429,13 +429,13 @@ The protocol extends along two axes. *Real-time and scale*: push notifications v
 
 ## 14. Conclusion
 
-Multi-agent software development fails at the seams: the handoffs, the shared decisions, and the question of who is doing what right now. The prevailing answers treat those seams as conversations and inherit conversation's weaknesses: lossiness, lack of structure, and no durable queryable record. The Room Protocol takes the opposite position. It gives agents a small set of structured, persistent state primitives behind one abstraction, the room, and lets them coordinate by reading and writing shared state instead of messaging one another. Its reference implementation, roomd, shows that this can be done with a fully stateless server over a single key-value store, and that the very properties making coordination reliable are the ones that make the system multi-tenant and deployable. The remaining work is to measure the advantage the design is built to provide.
+Multi-agent software development breaks on handoffs, shared decisions, and the question of who is doing what right now. Treating those as conversations inherits conversation's weaknesses: lossiness, weak structure, and no durable record you can query. The Room Protocol puts a small set of structured, persistent state primitives behind one abstraction (the room) and has agents coordinate by reading and writing that state instead of messaging each other. The reference implementation, roomd, runs as a fully stateless server over a single key-value store; the same choices that make coordination reliable also make the system multi-tenant and deployable. What remains is to measure whether the design delivers the advantage it claims.
 
 ---
 
 ## Acknowledgements
 
-The Room Protocol was designed and its reference implementation, roomd, built and exercised in real multi-agent sessions with Claude Code. The design owes an obvious debt to classical blackboard systems, which framed shared structured state as a coordination substrate decades before LLM agents existed.
+The Room Protocol was designed and its reference implementation, roomd, built and exercised in real multi-agent sessions with Claude Code. The design owes an obvious debt to classical blackboard systems, which used shared structured state for coordination long before LLM agents existed.
 
 ---
 
